@@ -95,21 +95,25 @@ class Options {
       throw ArgumentError('The source $error');
     } */
 
-    String? error = _verifyFolder(destination!);
-    if (error != null) {
-      throw ArgumentError('The destination $error');
-    }
+    // Create destination directory if it doesn't exist
+    _ensureDestinationExists(destination!);
   }
 
-  String? _verifyFolder(String folder) {
+  void _ensureDestinationExists(String folder) {
     if (folder.isEmpty) {
-      return 'folder cannot be empty.';
+      throw ArgumentError('The destination folder cannot be empty.');
     }
 
-    if (!Directory(folder).existsSync()) {
-      return 'folder does not exist.';
+    final directory = Directory(folder);
+    if (!directory.existsSync()) {
+      try {
+        directory.createSync(recursive: true);
+        Logger.root.info('Created destination directory: $folder');
+      } catch (e) {
+        throw ArgumentError(
+            'Failed to create destination directory $folder: $e');
+      }
     }
-    return null;
   }
 }
 

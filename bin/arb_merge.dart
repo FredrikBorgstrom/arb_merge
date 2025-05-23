@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:arb_merge/arb_merge.dart';
 import 'package:arb_merge/src/yaml.dart';
 
-const version = '1.0.1';
+const version = '1.1.0';
 
 Future<void> main(List<String> inlineArgs) async {
   if (inlineArgs.contains('--help') || inlineArgs.contains('-h')) {

@@ -6,6 +6,8 @@ based on the @@locale language code instead of using imposed file or folder nami
 It can also take an arbitrary number of source folders by using a comma separated string of paths,
 and each one of these folders will be recursed through so files can be nested to any depth.
 
+**✨ New in v1.1.0**: Now works both as a command-line tool AND as a library with a clean API!
+
 ## Background
 
 I created this package because I couldn't find a package that supported multiple input folders (with different paths).
@@ -26,6 +28,8 @@ Features:
 -   Supports unlimited* source folders
 -   The translation keys of the merged files can, if so desired, be sorted alphabetically
 -   Supports optional verbose output for debugging purposes
+-   **NEW**: Library API for programmatic usage
+-   **NEW**: Automatic creation of destination directories
 
 * limited by your command line's input buffer
 
@@ -44,6 +48,8 @@ dev_dependencies:
 
 ## Usage
 
+### Command Line Usage
+
 inline command options:
 
 `--sources`
@@ -55,7 +61,7 @@ dart run arb_merge --sources intl_autoTranslated,intl_static,assets/manual_trans
 ```
 
 `--destination`
-The path of the destination folder for the merged files
+The path of the destination folder for the merged files (will be created automatically if it doesn't exist)
 
 `--pattern`
 A string that will be used to name the created files where `{lang}` will be replaced by the language code.
@@ -85,6 +91,118 @@ arb_merge:
   pattern: 'intl_{lang}.arb'
   verbose: false
 ```
+
+### Library API Usage
+
+You can now use arb_merge programmatically in your Dart/Flutter applications:
+
+#### Simple Usage
+
+```dart
+import 'package:arb_merge/arb_merge.dart';
+
+Future<void> main() async {
+  // Create merger with simple factory method
+  final merger = ArbMerge.create(
+    sourceFolders: ['lib/l10n/manual', 'lib/l10n/auto'],
+    destinationFolder: 'lib/l10n/merged',
+    filePattern: 'app_{lang}.arb',
+    sortKeys: true,
+    verbose: true,
+  );
+
+  // Merge and write files
+  final result = await merger.run();
+  
+  print('Merged ${result.locales.length} locales: ${result.locales.join(', ')}');
+}
+```
+
+#### Advanced Usage - Merge Without Writing Files
+
+```dart
+import 'package:arb_merge/arb_merge.dart';
+
+Future<void> processTranslations() async {
+  final merger = ArbMerge.create(
+    sourceFolders: ['translations/base', 'translations/overrides'],
+    destinationFolder: 'output', // Not used when only merging
+  );
+
+  // Just merge, don't write files
+  final result = await merger.merge();
+  
+  // Process the merged data programmatically
+  for (final locale in result.locales) {
+    final data = result.mergedData[locale]!;
+    final translationCount = data.keys.where((key) => !key.startsWith('@')).length;
+    print('$locale: $translationCount translations');
+    
+    // Access specific translations
+    if (data.containsKey('welcome_message')) {
+      print('Welcome message in $locale: ${data['welcome_message']}');
+    }
+  }
+  
+  // Optionally write files later with custom logic
+  await merger.writeFiles(result);
+}
+```
+
+#### Get Content for Specific Locale
+
+```dart
+Future<void> getEnglishTranslations() async {
+  final merger = ArbMerge.create(
+    sourceFolders: ['translations/en'],
+    destinationFolder: 'temp',
+  );
+
+  final englishContent = await merger.getMergedContentForLocale('en');
+  
+  if (englishContent != null) {
+    // Use the English translations in your app
+    final welcomeMessage = englishContent['welcome'] ?? 'Welcome!';
+    print(welcomeMessage);
+  }
+}
+```
+
+#### Check Available Locales
+
+```dart
+Future<List<String>> getAvailableLanguages() async {
+  final merger = ArbMerge.create(
+    sourceFolders: ['assets/translations'],
+    destinationFolder: 'temp',
+  );
+
+  return await merger.getAvailableLocales();
+}
+```
+
+#### API Reference
+
+**Classes:**
+
+- `ArbMerge` - Main class for merging ARB files
+- `ArbMergeResult` - Contains the results of a merge operation
+- `Options` - Configuration options (for advanced usage)
+
+**ArbMerge Methods:**
+
+- `ArbMerge.create()` - Factory constructor with simplified parameters
+- `run()` - Merge files and write to destination
+- `merge()` - Merge files without writing (returns `ArbMergeResult`)
+- `writeFiles(result)` - Write merged files to destination
+- `getMergedContentForLocale(locale)` - Get content for specific locale
+- `getAvailableLocales()` - Get list of available locale codes
+
+**ArbMergeResult Properties:**
+
+- `mergedFiles` - Map of locale codes to JSON strings
+- `mergedData` - Map of locale codes to Map objects
+- `locales` - List of processed locale codes
 
 ## Supported formats
 
