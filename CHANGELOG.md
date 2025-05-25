@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+
+* **BUGFIX**: Fixed null pointer exception in `Options.createDefaultValues()` when `sources` field is null
+* Improved null safety handling for configuration parsing
+* Added proper validation for sources configuration from pubspec.yaml
+
 ## 1.2.0
 
 * **NEW**: Added comprehensive library API for programmatic usage

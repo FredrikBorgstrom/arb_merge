@@ -29,8 +29,18 @@ class Options {
   });
 
   static Map<String, dynamic> createDefaultValues(Map<String, dynamic> map) {
-    final sourceArg = map['sources'].split(',');
-    final src = sourceArg is Iterable ? sourceArg.cast<String>() : <String>[];
+    // Handle sources with null safety
+    final sourcesValue = map['sources'];
+    final List<String> src;
+    if (sourcesValue is String && sourcesValue.isNotEmpty) {
+      final sourceArg = sourcesValue.split(',');
+      src = sourceArg.map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+    } else if (sourcesValue is List) {
+      src = sourcesValue.cast<String>();
+    } else {
+      src = <String>[];
+    }
+
     final dst = map['destination'] is String ? map['destination'] : null;
     final sort = map['sort'] is bool ? map['sort'] : false;
     final pattern =

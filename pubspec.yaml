@@ -1,6 +1,6 @@
 name: arb_merge
 description: A command-line tool to merge ARB files from multiple sources based on the files' locale.
-version: 1.2.0
+version: 1.2.1
 homepage: https://abcx3.com
 topics: [tools, arb, internationalization, merge]
 repository: https://github.com/FredrikBorgstrom/arb_merge
