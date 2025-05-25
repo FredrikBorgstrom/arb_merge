@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.2
+
+* Enhance error handling and usage instructions in arb_merge
+* added detailed validation for source and destination folders
+* improved help output
+* ensured graceful error reporting for invalid inputs
+
 ## 1.2.1
 
 * **BUGFIX**: Fixed null pointer exception in `Options.createDefaultValues()` when `sources` field is null

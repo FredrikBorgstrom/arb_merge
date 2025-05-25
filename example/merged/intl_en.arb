@@ -1,5 +1,6 @@
 {
   "@@locale": "en",
+  "howDoYouDo": "How do you do?",
   "hello": "Hello {name}!",
   "@hello": {
     "placeholders": {
@@ -7,9 +8,5 @@
         "type": "String"
       }
     }
-  },
-  "howDoYouDo": "How do you do?",
-  "one": "one",
-  "three": "three",
-  "two": "two"
+  }
 }

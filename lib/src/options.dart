@@ -94,16 +94,26 @@ class Options {
   }
 
   void validate() {
-    if (sources == null) {
-      throw ArgumentError('The source folders cannot be null.');
+    if (sources == null || sources!.isEmpty) {
+      throw ArgumentError(
+          'Source folders are required. Please specify source folders using --sources or -s.\n'
+          'Example: --sources lib/l10n_cache,lib/l10n_output');
     }
-    if (destination == null) {
-      throw ArgumentError('The destination folder cannot be null.');
+
+    if (destination == null || destination!.isEmpty) {
+      throw ArgumentError(
+          'Destination folder is required. Please specify a destination folder using --destination or -d.\n'
+          'Example: --destination lib/l10n');
     }
-    /* String? error = _verifyFolder(sources!);
-    if (error != null) {
-      throw ArgumentError('The source $error');
-    } */
+
+    // Validate that source folders exist
+    for (final source in sources!) {
+      final sourceDir = Directory(source);
+      if (!sourceDir.existsSync()) {
+        throw ArgumentError(
+            'Source folder "$source" does not exist. Please check the path and try again.');
+      }
+    }
 
     // Create destination directory if it doesn't exist
     _ensureDestinationExists(destination!);
@@ -111,7 +121,8 @@ class Options {
 
   void _ensureDestinationExists(String folder) {
     if (folder.isEmpty) {
-      throw ArgumentError('The destination folder cannot be empty.');
+      throw ArgumentError(
+          'Destination folder path cannot be empty. Please provide a valid folder path.');
     }
 
     final directory = Directory(folder);
@@ -120,8 +131,9 @@ class Options {
         directory.createSync(recursive: true);
         Logger.root.info('Created destination directory: $folder');
       } catch (e) {
-        throw ArgumentError(
-            'Failed to create destination directory $folder: $e');
+        throw ArgumentError('Failed to create destination directory "$folder". '
+            'Please check that you have write permissions and the path is valid.\n'
+            'Error details: $e');
       }
     }
   }
